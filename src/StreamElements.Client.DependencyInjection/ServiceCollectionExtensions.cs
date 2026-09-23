@@ -17,23 +17,28 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddStreamElementsClient(
         this IServiceCollection services,
-        Action<StreamElementsClientOptions> configureOptions)
+        Action<StreamElementsClientOptions> configureOptions
+    )
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configureOptions);
 
         services.Configure(configureOptions);
         services.TryAddSingleton<IStreamElementsRealtimeClient, StreamElementsRealtimeClient>();
-        services.AddHttpClient<StreamElementsHttpClient>((sp, client) =>
-        {
-            StreamElementsClientOptions opts = sp.GetRequiredService<IOptions<StreamElementsClientOptions>>().Value;
-            client.BaseAddress = new Uri(opts.BaseUrl.TrimEnd('/') + "/");
-            if (!string.IsNullOrWhiteSpace(opts.Token))
+        services.AddHttpClient<StreamElementsHttpClient>(
+            (sp, client) =>
             {
-                client.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", opts.Token);
+                StreamElementsClientOptions opts = sp.GetRequiredService<
+                    IOptions<StreamElementsClientOptions>
+                >().Value;
+                client.BaseAddress = new Uri(opts.BaseUrl.TrimEnd('/') + "/");
+                if (!string.IsNullOrWhiteSpace(opts.Token))
+                {
+                    client.DefaultRequestHeaders.Authorization =
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", opts.Token);
+                }
             }
-        });
+        );
         return services;
     }
 

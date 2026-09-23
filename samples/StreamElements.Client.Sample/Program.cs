@@ -36,17 +36,18 @@ internal static class SampleApplication
         CancellationToken cancellationToken = shutdownSource.Token;
         AnsiConsole.Clear();
 
-        AnsiConsole.Write(
-            new FigletText("StreamElements")
-                .Color(Color.SteelBlue1));
+        AnsiConsole.Write(new FigletText("StreamElements").Color(Color.SteelBlue1));
 
-        AnsiConsole.MarkupLine("[grey]StreamElements realtime event listener - JWT auth, zero third-party deps.[/]");
+        AnsiConsole.MarkupLine(
+            "[grey]StreamElements realtime event listener - JWT auth, zero third-party deps.[/]"
+        );
         AnsiConsole.WriteLine();
 
         string token = AnsiConsole.Prompt(
             new TextPrompt<string>("StreamElements [green]JWT token[/]?")
                 .PromptStyle("deepskyblue1")
-                .Secret());
+                .Secret()
+        );
 
         AnsiConsole.WriteLine();
 
@@ -63,14 +64,16 @@ internal static class SampleApplication
         });
 
         await using ServiceProvider sp = services.BuildServiceProvider();
-        IStreamElementsRealtimeClient client = sp.GetRequiredService<IStreamElementsRealtimeClient>();
+        IStreamElementsRealtimeClient client =
+            sp.GetRequiredService<IStreamElementsRealtimeClient>();
 
         client.Authenticated += (_, channelId) =>
         {
             lock (consoleLock)
             {
                 AnsiConsole.MarkupLineInterpolated(
-                    $"[green]Authenticated[/] - channel ID: [white]{Markup.Escape(channelId)}[/]");
+                    $"[green]Authenticated[/] - channel ID: [white]{Markup.Escape(channelId)}[/]"
+                );
             }
         };
 
@@ -81,7 +84,9 @@ internal static class SampleApplication
                 if (ex is null)
                     AnsiConsole.MarkupLine("[yellow]Disconnected.[/]");
                 else
-                    AnsiConsole.MarkupLineInterpolated($"[red]Disconnected:[/] {Markup.Escape(ex.Message)}");
+                    AnsiConsole.MarkupLineInterpolated(
+                        $"[red]Disconnected:[/] {Markup.Escape(ex.Message)}"
+                    );
             }
         };
 
@@ -99,7 +104,9 @@ internal static class SampleApplication
         // Run the realtime client in the background
         Task clientTask = Task.Run(() => client.RunAsync(cancellationToken), cancellationToken);
 
-        AnsiConsole.MarkupLine("[grey]Connecting to StreamElements realtime... Press Ctrl+C to exit.[/]");
+        AnsiConsole.MarkupLine(
+            "[grey]Connecting to StreamElements realtime... Press Ctrl+C to exit.[/]"
+        );
         AnsiConsole.WriteLine();
 
         // Command loop
@@ -110,7 +117,13 @@ internal static class SampleApplication
             string command = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("[bold]Choose an action[/]")
-                    .AddChoices("Show recent events", "Show event counts", "Show connection status", "Exit"));
+                    .AddChoices(
+                        "Show recent events",
+                        "Show event counts",
+                        "Show connection status",
+                        "Exit"
+                    )
+            );
 
             switch (command)
             {
@@ -141,7 +154,8 @@ internal static class SampleApplication
                                 Markup.Escape(username),
                                 Markup.Escape(amount),
                                 Markup.Escape(e.Provider ?? "-"),
-                                Markup.Escape(e.CreatedAt?.ToString("u") ?? "-"));
+                                Markup.Escape(e.CreatedAt?.ToString("u") ?? "-")
+                            );
                         }
 
                         AnsiConsole.Write(table);
@@ -156,7 +170,9 @@ internal static class SampleApplication
                             .AddColumn("[bold]Event Type[/]")
                             .AddColumn("[bold]Count[/]");
 
-                        foreach ((string type, int count) in eventCounts.OrderByDescending(x => x.Value))
+                        foreach (
+                            (string type, int count) in eventCounts.OrderByDescending(x => x.Value)
+                        )
                         {
                             table.AddRow(Markup.Escape(type), count.ToString());
                         }
@@ -168,11 +184,15 @@ internal static class SampleApplication
                 case "Show connection status":
                     lock (consoleLock)
                     {
-                        string status = client.IsConnected ? "[green]Connected[/]" : "[red]Disconnected[/]";
+                        string status = client.IsConnected
+                            ? "[green]Connected[/]"
+                            : "[red]Disconnected[/]";
                         string channelId = client.AuthenticatedChannelId is null
                             ? "[grey](not authenticated)[/]"
                             : $"[white]{Markup.Escape(client.AuthenticatedChannelId)}[/]";
-                        AnsiConsole.MarkupLineInterpolated($"Status: {status} | Channel: {channelId}");
+                        AnsiConsole.MarkupLineInterpolated(
+                            $"Status: {status} | Channel: {channelId}"
+                        );
                     }
                     break;
 
@@ -184,7 +204,11 @@ internal static class SampleApplication
             await Task.Yield();
         }
 
-        try { await clientTask.ConfigureAwait(false); } catch (OperationCanceledException) { }
+        try
+        {
+            await clientTask.ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) { }
     }
 
     private static void RenderEvent(StreamElementsRealtimeEvent evt)
@@ -215,38 +239,44 @@ internal static class SampleApplication
             _ => Color.Grey,
         };
 
-        AnsiConsole.Write(new Panel(grid)
-            .Header($"[bold]{Markup.Escape(evt.Type.ToUpperInvariant())}[/]")
-            .Border(BoxBorder.Rounded)
-            .BorderColor(borderColor));
+        AnsiConsole.Write(
+            new Panel(grid)
+                .Header($"[bold]{Markup.Escape(evt.Type.ToUpperInvariant())}[/]")
+                .Border(BoxBorder.Rounded)
+                .BorderColor(borderColor)
+        );
     }
 
-    private static string GetUsername(StreamElementsRealtimeEvent evt) => evt switch
-    {
-        StreamElementsTipEvent e => e.Data?.DisplayName ?? e.Data?.Username ?? "-",
-        StreamElementsSubscriberEvent e => e.Data?.DisplayName ?? e.Data?.Username ?? "-",
-        StreamElementsCheerEvent e => e.Data?.DisplayName ?? e.Data?.Username ?? "-",
-        StreamElementsFollowEvent e => e.Data?.DisplayName ?? e.Data?.Username ?? "-",
-        StreamElementsHostEvent e => e.Data?.DisplayName ?? e.Data?.Username ?? "-",
-        StreamElementsRaidEvent e => e.Data?.DisplayName ?? e.Data?.Username ?? "-",
-        _ => "-",
-    };
+    private static string GetUsername(StreamElementsRealtimeEvent evt) =>
+        evt switch
+        {
+            StreamElementsTipEvent e => e.Data?.DisplayName ?? e.Data?.Username ?? "-",
+            StreamElementsSubscriberEvent e => e.Data?.DisplayName ?? e.Data?.Username ?? "-",
+            StreamElementsCheerEvent e => e.Data?.DisplayName ?? e.Data?.Username ?? "-",
+            StreamElementsFollowEvent e => e.Data?.DisplayName ?? e.Data?.Username ?? "-",
+            StreamElementsHostEvent e => e.Data?.DisplayName ?? e.Data?.Username ?? "-",
+            StreamElementsRaidEvent e => e.Data?.DisplayName ?? e.Data?.Username ?? "-",
+            _ => "-",
+        };
 
-    private static string GetAmount(StreamElementsRealtimeEvent evt) => evt switch
-    {
-        StreamElementsTipEvent e when e.Data?.Amount is { } a => $"{a:0.00} {e.Data.Currency ?? ""}".Trim(),
-        StreamElementsSubscriberEvent e when e.Data?.Amount is { } a => $"{a} months",
-        StreamElementsCheerEvent e when e.Data?.Amount is { } a => $"{a} bits",
-        StreamElementsRaidEvent e when e.Data?.Amount is { } a => $"{a} raiders",
-        StreamElementsHostEvent e when e.Data?.Amount is { } a => $"{a} viewers",
-        _ => "-",
-    };
+    private static string GetAmount(StreamElementsRealtimeEvent evt) =>
+        evt switch
+        {
+            StreamElementsTipEvent e when e.Data?.Amount is { } a =>
+                $"{a:0.00} {e.Data.Currency ?? ""}".Trim(),
+            StreamElementsSubscriberEvent e when e.Data?.Amount is { } a => $"{a} months",
+            StreamElementsCheerEvent e when e.Data?.Amount is { } a => $"{a} bits",
+            StreamElementsRaidEvent e when e.Data?.Amount is { } a => $"{a} raiders",
+            StreamElementsHostEvent e when e.Data?.Amount is { } a => $"{a} viewers",
+            _ => "-",
+        };
 
-    private static string GetMessage(StreamElementsRealtimeEvent evt) => evt switch
-    {
-        StreamElementsTipEvent e => e.Data?.Message ?? string.Empty,
-        StreamElementsSubscriberEvent e => e.Data?.Message ?? string.Empty,
-        StreamElementsCheerEvent e => e.Data?.Message ?? string.Empty,
-        _ => string.Empty,
-    };
+    private static string GetMessage(StreamElementsRealtimeEvent evt) =>
+        evt switch
+        {
+            StreamElementsTipEvent e => e.Data?.Message ?? string.Empty,
+            StreamElementsSubscriberEvent e => e.Data?.Message ?? string.Empty,
+            StreamElementsCheerEvent e => e.Data?.Message ?? string.Empty,
+            _ => string.Empty,
+        };
 }

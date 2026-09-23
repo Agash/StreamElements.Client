@@ -39,6 +39,11 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore StreamElements.Client.slnx
 
+    - name: Check formatting
+      run: |
+        dotnet tool restore
+        dotnet csharpier check .
+
     - name: Build solution
       run: dotnet build StreamElements.Client.slnx --configuration Release --no-restore
 

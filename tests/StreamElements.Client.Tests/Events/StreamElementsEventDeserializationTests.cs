@@ -29,7 +29,10 @@ public sealed class StreamElementsEventDeserializationTests
             }
             """;
 
-        StreamElementsTipEvent? evt = JsonSerializer.Deserialize<StreamElementsTipEvent>(json, s_opts);
+        StreamElementsTipEvent? evt = JsonSerializer.Deserialize<StreamElementsTipEvent>(
+            json,
+            s_opts
+        );
 
         Assert.NotNull(evt);
         Assert.Equal("tip-1", evt.Id);
@@ -61,7 +64,8 @@ public sealed class StreamElementsEventDeserializationTests
             }
             """;
 
-        StreamElementsSubscriberEvent? evt = JsonSerializer.Deserialize<StreamElementsSubscriberEvent>(json, s_opts);
+        StreamElementsSubscriberEvent? evt =
+            JsonSerializer.Deserialize<StreamElementsSubscriberEvent>(json, s_opts);
 
         Assert.NotNull(evt);
         Assert.Equal("sub-1", evt.Id);
@@ -87,7 +91,10 @@ public sealed class StreamElementsEventDeserializationTests
             }
             """;
 
-        StreamElementsCheerEvent? evt = JsonSerializer.Deserialize<StreamElementsCheerEvent>(json, s_opts);
+        StreamElementsCheerEvent? evt = JsonSerializer.Deserialize<StreamElementsCheerEvent>(
+            json,
+            s_opts
+        );
 
         Assert.NotNull(evt);
         Assert.Equal(500m, evt.Data?.Amount);
@@ -107,7 +114,10 @@ public sealed class StreamElementsEventDeserializationTests
             }
             """;
 
-        StreamElementsFollowEvent? evt = JsonSerializer.Deserialize<StreamElementsFollowEvent>(json, s_opts);
+        StreamElementsFollowEvent? evt = JsonSerializer.Deserialize<StreamElementsFollowEvent>(
+            json,
+            s_opts
+        );
 
         Assert.NotNull(evt);
         Assert.Equal("followfoo", evt.Data?.Username);

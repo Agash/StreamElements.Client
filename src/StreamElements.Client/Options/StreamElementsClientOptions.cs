@@ -23,5 +23,6 @@ public sealed class StreamElementsClientOptions
     /// <summary>
     /// Gets or sets the realtime socket endpoint URL.
     /// </summary>
-    public string RealtimeUrl { get; set; } = "wss://realtime.streamelements.com/socket.io/?transport=websocket&EIO=3";
+    public string RealtimeUrl { get; set; } =
+        "wss://realtime.streamelements.com/socket.io/?transport=websocket&EIO=3";
 }
