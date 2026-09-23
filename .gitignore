@@ -426,3 +426,6 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# The coverage scope config is source, not a coverage report.
+!coverage.settings.xml
