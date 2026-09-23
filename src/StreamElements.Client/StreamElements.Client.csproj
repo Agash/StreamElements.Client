@@ -1,10 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFrameworks>net10.0;net11.0</TargetFrameworks>
     <IsPackable>true</IsPackable>
+    <IsAotCompatible>true</IsAotCompatible>
     <PackageId>StreamElements.Client</PackageId>
     <Title>StreamElements.Client</Title>
-    <Description>Typed .NET 10 client library for the StreamElements REST API and real-time socket events.</Description>
+    <Description>Typed .NET client library for the StreamElements REST API and real-time socket events.</Description>
     <MinVerTagPrefix>v</MinVerTagPrefix>
   </PropertyGroup>
 

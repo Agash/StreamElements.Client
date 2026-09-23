@@ -1,6 +1,0 @@
-<Project>
-  <Target Name="CopyLicense" AfterTargets="Build" Condition="'$(IsPackable)' == 'true'">
-    <Copy SourceFiles="$(MSBuildThisFileDirectory)LICENSE.txt" DestinationFolder="$(OutDir)" />
-    <Copy SourceFiles="$(MSBuildThisFileDirectory)README.md" DestinationFolder="$(OutDir)" />
-  </Target>
-</Project>
