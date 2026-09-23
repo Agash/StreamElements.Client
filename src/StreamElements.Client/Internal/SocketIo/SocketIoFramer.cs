@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 
 namespace StreamElements.Client.Internal.SocketIo;
 
@@ -23,11 +24,11 @@ internal static class SocketIoFramer
     /// Encodes a Socket.IO EVENT packet (EIO message wrapping a Socket.IO event).
     /// Result: "42[&lt;eventName&gt;,&lt;jsonData&gt;]"
     /// </summary>
-    public static string EncodeEvent(string eventName, object data)
+    public static string EncodeEvent<T>(string eventName, T data, JsonTypeInfo<T> typeInfo)
     {
         ArgumentException.ThrowIfNullOrEmpty(eventName);
 
-        string json = JsonSerializer.Serialize(data, SocketIoJsonOptions.Instance);
+        string json = JsonSerializer.Serialize(data, typeInfo);
         return $"42[\"{eventName}\",{json}]";
     }
 

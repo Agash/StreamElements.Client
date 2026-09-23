@@ -1,10 +1,12 @@
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using StreamElements.Client.Abstractions;
 using StreamElements.Client.Events;
+using StreamElements.Client.Internal;
 using StreamElements.Client.Internal.SocketIo;
 using StreamElements.Client.Options;
 
@@ -16,8 +18,6 @@ namespace StreamElements.Client.Realtime;
 /// </summary>
 public sealed partial class StreamElementsRealtimeClient : IStreamElementsRealtimeClient
 {
-    private static readonly JsonSerializerOptions s_jsonOptions = new(JsonSerializerDefaults.Web);
-
     private readonly StreamElementsClientOptions _options;
     private readonly ILogger<StreamElementsRealtimeClient> _logger;
 
@@ -124,8 +124,11 @@ public sealed partial class StreamElementsRealtimeClient : IStreamElementsRealti
         // Authenticate
         string authMethod =
             _options.AuthMethod == StreamElementsAuthMethod.OAuth2 ? "oauth2" : "jwt";
-        var authPayload = new { method = authMethod, token = _options.Token };
-        string authFrame = SocketIoFramer.EncodeEvent("authenticate", authPayload);
+        string authFrame = SocketIoFramer.EncodeEvent(
+            "authenticate",
+            new SocketIoAuthPayload(authMethod, _options.Token),
+            StreamElementsJsonContext.Default.SocketIoAuthPayload
+        );
         await SendTextFrameAsync(ws, authFrame, cancellationToken).ConfigureAwait(false);
         LogAuthenticating(_logger, authMethod);
 
@@ -187,7 +190,11 @@ public sealed partial class StreamElementsRealtimeClient : IStreamElementsRealti
         JsonElement[] parts;
         try
         {
-            parts = JsonSerializer.Deserialize<JsonElement[]>(packet.Data, s_jsonOptions) ?? [];
+            parts =
+                JsonSerializer.Deserialize(
+                    packet.Data,
+                    StreamElementsJsonContext.Default.JsonElementArray
+                ) ?? [];
         }
         catch (JsonException ex)
         {
@@ -264,15 +271,31 @@ public sealed partial class StreamElementsRealtimeClient : IStreamElementsRealti
 
         StreamElementsRealtimeEvent? evt = type switch
         {
-            StreamElementsEventType.Tip => Deserialize<StreamElementsTipEvent>(payload),
-            StreamElementsEventType.Subscriber => Deserialize<StreamElementsSubscriberEvent>(
-                payload
+            StreamElementsEventType.Tip => Deserialize(
+                payload,
+                StreamElementsJsonContext.Default.StreamElementsTipEvent
             ),
-            StreamElementsEventType.Cheer => Deserialize<StreamElementsCheerEvent>(payload),
-            StreamElementsEventType.Follow => Deserialize<StreamElementsFollowEvent>(payload),
-            StreamElementsEventType.Host => Deserialize<StreamElementsHostEvent>(payload),
-            StreamElementsEventType.Raid => Deserialize<StreamElementsRaidEvent>(payload),
-            _ => Deserialize<StreamElementsUnknownEvent>(payload),
+            StreamElementsEventType.Subscriber => Deserialize(
+                payload,
+                StreamElementsJsonContext.Default.StreamElementsSubscriberEvent
+            ),
+            StreamElementsEventType.Cheer => Deserialize(
+                payload,
+                StreamElementsJsonContext.Default.StreamElementsCheerEvent
+            ),
+            StreamElementsEventType.Follow => Deserialize(
+                payload,
+                StreamElementsJsonContext.Default.StreamElementsFollowEvent
+            ),
+            StreamElementsEventType.Host => Deserialize(
+                payload,
+                StreamElementsJsonContext.Default.StreamElementsHostEvent
+            ),
+            StreamElementsEventType.Raid => Deserialize(
+                payload,
+                StreamElementsJsonContext.Default.StreamElementsRaidEvent
+            ),
+            _ => Deserialize(payload, StreamElementsJsonContext.Default.StreamElementsUnknownEvent),
         };
 
         if (evt is not null)
@@ -287,14 +310,15 @@ public sealed partial class StreamElementsRealtimeClient : IStreamElementsRealti
         SessionUpdateReceived?.Invoke(this, update);
     }
 
-    private static T? Deserialize<T>(JsonElement element)
+    private T? Deserialize<T>(JsonElement element, JsonTypeInfo<T> typeInfo)
     {
         try
         {
-            return element.Deserialize<T>(s_jsonOptions);
+            return element.Deserialize(typeInfo);
         }
-        catch (JsonException)
+        catch (JsonException ex)
         {
+            LogEventParseError(_logger, element.GetRawText(), ex);
             return default;
         }
     }

@@ -1,20 +1,29 @@
 <Project>
   <PropertyGroup>
-    <LangVersion>preview</LangVersion>
+    <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <EnablePreviewFeatures>true</EnablePreviewFeatures>
     <Authors>Agash</Authors>
     <Company>Agash</Company>
     <Copyright>Copyright © Agash</Copyright>
     <RepositoryUrl>https://github.com/Agash/StreamElements.Client</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup Condition="'$(IsPackable)' == 'true'">
+    <None
+      Include="$(MSBuildThisFileDirectory)README.md"
+      Pack="true"
+      PackagePath="\"
+      Visible="false"
+    />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="MinVer" PrivateAssets="all" />

@@ -1,14 +1,13 @@
 using System.Text.Json;
 using StreamElements.Client.Events;
-using Xunit;
+using StreamElements.Client.Internal;
 
 namespace StreamElements.Client.Tests.Events;
 
+[TestClass]
 public sealed class StreamElementsEventDeserializationTests
 {
-    private static readonly JsonSerializerOptions s_opts = new(JsonSerializerDefaults.Web);
-
-    [Fact]
+    [TestMethod]
     public void DeserializeTipEvent_ReturnsCorrectAmountAndCurrency()
     {
         const string json = """
@@ -29,21 +28,21 @@ public sealed class StreamElementsEventDeserializationTests
             }
             """;
 
-        StreamElementsTipEvent? evt = JsonSerializer.Deserialize<StreamElementsTipEvent>(
+        StreamElementsTipEvent? evt = JsonSerializer.Deserialize(
             json,
-            s_opts
+            StreamElementsJsonContext.Default.StreamElementsTipEvent
         );
 
-        Assert.NotNull(evt);
-        Assert.Equal("tip-1", evt.Id);
-        Assert.Equal("tip", evt.Type);
-        Assert.Equal(10.50m, evt.Data?.Amount);
-        Assert.Equal("USD", evt.Data?.Currency);
-        Assert.Equal("tipperfoo", evt.Data?.Username);
-        Assert.Equal("Nice stream!", evt.Data?.Message);
+        Assert.IsNotNull(evt);
+        Assert.AreEqual("tip-1", evt.Id);
+        Assert.AreEqual("tip", evt.Type);
+        Assert.AreEqual(10.50m, evt.Data?.Amount);
+        Assert.AreEqual("USD", evt.Data?.Currency);
+        Assert.AreEqual("tipperfoo", evt.Data?.Username);
+        Assert.AreEqual("Nice stream!", evt.Data?.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public void DeserializeSubscriberEvent_ReturnsCorrectTierAndStreak()
     {
         const string json = """
@@ -64,16 +63,18 @@ public sealed class StreamElementsEventDeserializationTests
             }
             """;
 
-        StreamElementsSubscriberEvent? evt =
-            JsonSerializer.Deserialize<StreamElementsSubscriberEvent>(json, s_opts);
+        StreamElementsSubscriberEvent? evt = JsonSerializer.Deserialize(
+            json,
+            StreamElementsJsonContext.Default.StreamElementsSubscriberEvent
+        );
 
-        Assert.NotNull(evt);
-        Assert.Equal("sub-1", evt.Id);
-        Assert.Equal("1000", evt.Data?.Tier);
-        Assert.Equal(3, evt.Data?.Streak);
+        Assert.IsNotNull(evt);
+        Assert.AreEqual("sub-1", evt.Id);
+        Assert.AreEqual("1000", evt.Data?.Tier);
+        Assert.AreEqual(3, evt.Data?.Streak);
     }
 
-    [Fact]
+    [TestMethod]
     public void DeserializeCheerEvent_ReturnsCorrectBitsAmount()
     {
         const string json = """
@@ -91,16 +92,16 @@ public sealed class StreamElementsEventDeserializationTests
             }
             """;
 
-        StreamElementsCheerEvent? evt = JsonSerializer.Deserialize<StreamElementsCheerEvent>(
+        StreamElementsCheerEvent? evt = JsonSerializer.Deserialize(
             json,
-            s_opts
+            StreamElementsJsonContext.Default.StreamElementsCheerEvent
         );
 
-        Assert.NotNull(evt);
-        Assert.Equal(500m, evt.Data?.Amount);
+        Assert.IsNotNull(evt);
+        Assert.AreEqual(500m, evt.Data?.Amount);
     }
 
-    [Fact]
+    [TestMethod]
     public void DeserializeFollowEvent_ReturnsCorrectUsername()
     {
         const string json = """
@@ -114,12 +115,12 @@ public sealed class StreamElementsEventDeserializationTests
             }
             """;
 
-        StreamElementsFollowEvent? evt = JsonSerializer.Deserialize<StreamElementsFollowEvent>(
+        StreamElementsFollowEvent? evt = JsonSerializer.Deserialize(
             json,
-            s_opts
+            StreamElementsJsonContext.Default.StreamElementsFollowEvent
         );
 
-        Assert.NotNull(evt);
-        Assert.Equal("followfoo", evt.Data?.Username);
+        Assert.IsNotNull(evt);
+        Assert.AreEqual("followfoo", evt.Data?.Username);
     }
 }
