@@ -9,7 +9,8 @@ public sealed class SocketIoFramerTests
     [Fact]
     public void TryParse_EngineIoOpenPacket_ReturnsConnectType()
     {
-        const string frame = @"0{""sid"":""abc"",""upgrades"":[],""pingInterval"":25000,""pingTimeout"":5000}";
+        const string frame =
+            @"0{""sid"":""abc"",""upgrades"":[],""pingInterval"":25000,""pingTimeout"":5000}";
         SocketIoPacket? packet = SocketIoFramer.TryParse(frame);
         Assert.NotNull(packet);
         Assert.Equal(SocketIoPacketType.Connect, packet.Type);
@@ -82,7 +83,10 @@ public sealed class SocketIoFramerTests
     [Fact]
     public void EncodeEvent_ProducesCorrectSocketIoEventFrame()
     {
-        string frame = SocketIoFramer.EncodeEvent("authenticate", new { method = "jwt", token = "tok" });
+        string frame = SocketIoFramer.EncodeEvent(
+            "authenticate",
+            new { method = "jwt", token = "tok" }
+        );
         Assert.StartsWith("42[", frame, StringComparison.Ordinal);
         Assert.Contains("\"authenticate\"", frame, StringComparison.Ordinal);
         Assert.Contains("\"method\"", frame, StringComparison.Ordinal);

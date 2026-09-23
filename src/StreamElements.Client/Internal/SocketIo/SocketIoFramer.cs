@@ -69,8 +69,16 @@ internal static class SocketIoFramer
             EngineIoPacketType.Ping => null, // handled directly in the receive loop
             EngineIoPacketType.Pong => null,
             EngineIoPacketType.Noop => null,
-            EngineIoPacketType.Open => new SocketIoPacket { Type = SocketIoPacketType.Connect, Data = frame[1..] },
-            EngineIoPacketType.Close => new SocketIoPacket { Type = SocketIoPacketType.Disconnect, Data = null },
+            EngineIoPacketType.Open => new SocketIoPacket
+            {
+                Type = SocketIoPacketType.Connect,
+                Data = frame[1..],
+            },
+            EngineIoPacketType.Close => new SocketIoPacket
+            {
+                Type = SocketIoPacketType.Disconnect,
+                Data = null,
+            },
             EngineIoPacketType.Message => ParseSocketIoPacket(frame[1..]),
             _ => null,
         };
