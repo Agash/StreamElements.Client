@@ -6,10 +6,10 @@
   <ItemGroup>
     <PackageVersion
       Include="Microsoft.Extensions.DependencyInjection.Abstractions"
-      Version="10.0.14"
+      Version="11.0.0"
     />
     <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.14" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="11.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.14" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.14" />
     <PackageVersion Include="Microsoft.Kiota.Abstractions" Version="2.1.2" />
